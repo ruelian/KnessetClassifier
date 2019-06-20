@@ -6,7 +6,7 @@ after briefly going over it and judging that in contrast to other available list
 this one focuses on actual stopwords (I know it's not really well-defined)
 rather than just frequent words.
 
-Some additional frequent stopwords from the articles data were added
+Some additional frequent stopwords observed from data were added
 in the end of the list.
 '''
 
