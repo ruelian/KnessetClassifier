@@ -131,7 +131,6 @@ def show_freqs(tokens, vocabulary=None, n=15, logscale=True, token_lab='Token', 
     count = OrderedDict(sorted(count.items(), key=lambda kv: kv[1]))
     vals = list(count.values())
     keys = list(count.keys())
-    bidi_keys = [bidi.get_display(token) for token in keys]
     
     # quantile plot
     ax = axs[0]
@@ -148,7 +147,7 @@ def show_freqs(tokens, vocabulary=None, n=15, logscale=True, token_lab='Token', 
     
     # top tokens
     ax = axs[1]
-    ax.bar(bidi_keys[-1:-n-1:-1], vals[-1:-n-1:-1])
+    ax.bar([bidi.get_display(token) for token in keys[-1:-n-1:-1]], vals[-1:-n-1:-1])
     ax.tick_params(axis='x', rotation=45)
     ax.set_xlabel(token_lab)
     ax.set_ylabel('Occurences')
@@ -161,7 +160,7 @@ def show_freqs(tokens, vocabulary=None, n=15, logscale=True, token_lab='Token', 
     
     # tail tokens
     ax = axs[2]
-    ax.bar(list(reversed(bidi_keys[:n])), list(reversed(vals[:n])))
+    ax.bar([bidi.get_display(token) for token in list(reversed(keys[:n]))], list(reversed(vals[:n])))
     ax.tick_params(axis='x', rotation=45)
     for label in ax.xaxis.get_ticklabels():
         label.set_ha('right')
