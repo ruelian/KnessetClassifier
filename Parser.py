@@ -108,7 +108,8 @@ class Parser:
     def full_protocol(self, ID=None):
         if ID is None:
             ID = random.choice(np.unique(self.df.ID))
-        return '\n\n'.join(self.df[self.df.ID==ID].body.values)
+        protocol = self.df[self.df.ID==ID]
+        return '\n\n'.join(['________\n'+h+':\n'+b for h,b in zip(protocol.header,protocol.body)])
     
     def show_tokens(self, **kwargs):
         show_freqs([tok for group in self.tokens for tok in group], **kwargs)
