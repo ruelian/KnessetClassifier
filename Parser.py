@@ -4,7 +4,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 import re
-import pickle
+import pickle as pkl
 import random
 from pathlib import Path
 from time import time
@@ -126,7 +126,32 @@ EXTRA_STOPWORDS = (
     'רואה',
     'יהיו',
     'ידי',
-    'עדיין'
+    'עדיין',
+    'השר',
+    'ברור',
+    'שאם',
+    'מבין',
+    'אפילו',
+    'אמר',
+    'כלומר',
+    'פי',
+    'הישיבה',
+    'לדבר',
+    'שגם',
+    'אומרים',
+    'להגיע',
+    'מישהו',
+    'ואם',
+    'למשל',
+    'עושה',
+    'שיהיה',
+    'כמובן',
+    'שכל',
+    'אמרתי',
+    'שיהיה',
+    'בא',
+    'הזו',
+    'הייתה'
 )
 
 
@@ -140,6 +165,8 @@ def ordered_counter(tokens):
 
 def tokenize(texts, seps=WORDS_SEPS, chars_to_filter=CHARS_TO_FILTER,
              stopwords=hebrew_stopwords, filter_fun=None, apply_fun=None):
+    if type(stopwords) is not set:
+        stopwords = set(stopwords)
     words = [re.split(seps,txt) for txt in texts]
     words = [re.sub(chars_to_filter, '', w.strip())
              for text_words in words for w in text_words]
@@ -154,9 +181,9 @@ def tokenize(texts, seps=WORDS_SEPS, chars_to_filter=CHARS_TO_FILTER,
 
 
 class Parser:
-    def __init__(self, df, meta=None,
+    def __init__(self, df=None, meta=None,
                  words_seps=WORDS_SEPS, chars_to_filter=CHARS_TO_FILTER,
-                 filter_fun=lambda s: len(s)>1 or '0'<=s<='9', apply_fun=None,
+                 filter_fun=lambda s: (len(s)>1 or '0'<=s<='9' or 'A'<=s<='Z'), apply_fun=None,
                  stopwords=hebrew_stopwords+EXTRA_STOPWORDS,
                  max_voc_size=1000, min_voc_occurences=10,
                  laplace_smooth=0,
@@ -171,7 +198,7 @@ class Parser:
         self.chars_to_filter = chars_to_filter
         self.filter_fun = filter_fun
         self.apply_fun = apply_fun # TODO use this for lemmatization
-        self.stopwords = stopwords
+        self.stopwords = set(stopwords)
         self.tokens = None
         self.profile = None
         # vocabulary
@@ -234,13 +261,31 @@ class Parser:
         filter_fun = self.filter_fun if self.filter_fun else lambda w: w in self.vocabulary
         counters = {w: len(np.unique(self.df.ID)) * [self.laplace_smooth]
                     for w in self.vocabulary}
-        for i,ID in tqdm(enumerate(np.unique(self.df.ID))):
+        for i,ID in enumerate(tqdm(np.unique(self.df.ID))):
             for w in tokenize(self.df[self.df.ID==ID].body.values,
                               self.words_seps, self.chars_to_filter,
                               self.stopwords, filter_fun, self.apply_fun):
                 if w in counters:
                     counters[w][i] += 1
         self.one_hot = pd.DataFrame({**counters})
+    
+    def save(self, path='Data/parsed_data.pkl'):
+        with open(path, 'wb') as f:
+            pkl.dump(
+                {'meta':self.meta, 'df':self.df, 'tokens':self.tokens,
+                 'profile':self.profile, 'vocabulary':self.vocabulary, 'one_hot':self.one_hot},
+                f
+            )
+
+    def load(self, path='Data/parsed_data.pkl'):
+        with open(path,'rb') as f:
+            tmp = pkl.load(f)
+            self.meta = tmp['meta']
+            self.df = tmp['df']
+            self.tokens = tmp['tokens']
+            self.profile = tmp['profile']
+            self.vocabulary = tmp['vocabulary']
+            self.one_hot = tmp['one_hot']
     
     # Analysis
     def full_protocol(self, ID=None):
@@ -255,7 +300,6 @@ class Parser:
         else:
             show_freqs([tok for group in self.tokens for tok in group], **kwargs)
 
-        
     def one_hot_pca(self):
         # TODO plot PCA of one_hot with 2 components
         warn('PCA display of protocols is not implemented :(')
