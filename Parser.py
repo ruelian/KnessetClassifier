@@ -18,6 +18,24 @@ from collections import Counter, OrderedDict
 from bidi import algorithm as bidi
 from hebrew_stopwords import hebrew_stopwords
 
+'''
+TODO Parallel computing (e.g. for large tokenizations):
+
+from concurrent.futures import ProcessPoolExecutor
+
+    if distributed:
+        tpool = ProcessPoolExecutor(max_workers=distributed)
+        tmp = tpool.map(fun, input_list)
+        x = list(tmp)
+    else:
+        x = [fun(p) for p in input_list]
+        
+_______________________
+
+TODO consider holding one_hot encoding as count[doc][word] rather than count[word][doc]
+without initializing all words (to avoid allocating the whole sparse matrix docsXwords).
+This depends on how the future clustering/classifier will expect to have its input. 
+'''
 
 EXTRA_STOPWORDS = (
     'לך',
