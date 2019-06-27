@@ -209,8 +209,9 @@ class Parser:
         # data
         self.meta = meta
         self.df = df
-        self.df.body.fillna('', inplace=True)
-        self.df.header.fillna('', inplace=True)
+        if self.df:
+            self.df.body.fillna('', inplace=True)
+            self.df.header.fillna('', inplace=True)
         # tokenization conf
         self.words_seps = words_seps
         self.chars_to_filter = chars_to_filter
@@ -323,11 +324,12 @@ class Parser:
         warn('PCA display of protocols is not implemented :(')
 		
 
-def show_freqs(tokens, vocabulary=None, n=15, logscale=True, token_lab='Token', compact=False):
+def show_freqs(tokens, vocabulary=None, n=15, logscale=True, token_lab='Token', compact=False, show_tail=True):
+    n_figs = 2 + show_tail
     if compact:
-        _, axs = plt.subplots(1,3, figsize=(18,5))
+        _, axs = plt.subplots(1,n_figs, figsize=(18,5))
     else:
-        _, axs = plt.subplots(3,1, figsize=(12,12))
+        _, axs = plt.subplots(n_figs,1, figsize=(12,12))
     
     if vocabulary:
         vocabulary = set(vocabulary)
@@ -364,17 +366,18 @@ def show_freqs(tokens, vocabulary=None, n=15, logscale=True, token_lab='Token', 
         label.set_ha('right')
     
     # tail tokens
-    ax = axs[2]
-    ax.bar([bidi.get_display(token) for token in list(reversed(keys[:n]))], list(reversed(vals[:n])))
-    ax.tick_params(axis='x', rotation=45)
-    for label in ax.xaxis.get_ticklabels():
-        label.set_ha('right')
-    ax.set_xlabel(token_lab)
-    ax.set_ylabel('Occurences')
-    ax.set_title('Tail')
-    if logscale:
-        ax.set_yscale('log')
-    ax.grid()
+    if show_tail:
+        ax = axs[2]
+        ax.bar([bidi.get_display(token) for token in list(reversed(keys[:n]))], list(reversed(vals[:n])))
+        ax.tick_params(axis='x', rotation=45)
+        for label in ax.xaxis.get_ticklabels():
+            label.set_ha('right')
+        ax.set_xlabel(token_lab)
+        ax.set_ylabel('Occurences')
+        ax.set_title('Tail')
+        if logscale:
+            ax.set_yscale('log')
+        ax.grid()
     
     plt.tight_layout()
     
