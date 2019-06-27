@@ -14,11 +14,11 @@ FIELDS = [
 	(6, "token_serial")
 ]
 
-CHARS_TO_FILTER = '\t|\n|\r|\"|\'|,|–|;'
+CHARS_TO_FILTER = '\t|\n|\r|\"|\'|,|–|;|\(|\)|\_'
 FILTERED_PART_OF_SPEECH = ["JJ", "CD", "NN", "NNT", "NNP", "VB"]
 
 def fetch_md_from_rest(text):
-	s = 'curl -s -X GET -H \'Content-Type: application/json\' -d\'{\"text\": \"' + text + '  \"}\' localhost:8000/yap/heb/joint | jq .'
+	s = 'curl -s -X GET -H \'Content-Type: application/json\' -d\'{\"text\": \"' + text + '  \"}\' localhost:8000/yap/heb/joint | ./jq .'
 	return os.popen(s).read()	
 
 
@@ -50,15 +50,20 @@ def tag_sentence(text, final):
 		# processed_part = {}
 
 		if fields[5] in FILTERED_PART_OF_SPEECH:
-			final[fields[5]].append(fields[3])
+			if fields[3] == "_":
+				final[fields[5]].append(fields[2])
+			else:
+				final[fields[5]].append(fields[3])
 
 		# processed_parts.append(processed_part)
 
 
 def lemmatize(raw):
 	final = { pos: [] for pos in FILTERED_PART_OF_SPEECH }
+	if not raw:
+		return final
 	for s in split_sentences(raw):
+		if not s:
+			continue
 		tag_sentence(s, final)
 	return final
-
-print(lemmatize("התכוונתי להתייחס לנקודה אחת לעניין ההערה לסעיף (3) בעניין ההגדרה של הפרדה של פסולת אריזות מפסולת אחרת. אנחנו מכירים את הסוגיה, וניתוח שלנו מעלה שיש צורך לעשות התאמה נקודתית בסעיף 22(א) כשנגיע אליו בין הפרדת פסולת אריזות לבין הזרם היבש כי האריזות הוא חלק מהזרם היבש. יש מקום לעשות תיקון נקודתי. בסעיף 1 שזה סעיף מטרה מוצע להשאיר את זה באופן כללי ולעשות התאמה למונח כללי יותר בסעיף של הפרדה של פסולת אריזות מפסולת אחרת. זה יכול להיות לעניין הפרדה במקור או לעניין של הפרדה ופינוי של פסולות, לרבות פסולת אריזות. פשוט להשאיר את זה במונח כללי בסעיף 1. את ההתאמה הנקודתית לזרם היבש נעשה ב-22(א) כשנגיע לשם. ההערה מקובלת ומוצע באמת להשמיט את הביטוי \"פסולת אריזות מפסולת אחרת\" ולהשאיר מונח כללי של הפרדה במקור."))
