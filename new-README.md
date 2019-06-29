@@ -62,8 +62,8 @@ For a more in-depth explanation and usage guide, check out [this article](https:
 
 Problems we ran into:
 
-- like we mentioned in the part about language parsing, YAP is kinda slow so we couldn't process all our data. You can train the model on a subset of data (which [we tried by only running it on the titles](/blob/master/LDA_title_pipeline.ipynb)), but then it's less good. Also, if you want to use the model for inference on new documents, you have to do the same preprocessing on the new documents so that the model can make sense of them.
-- even without having to preprocess everything, the running time is still annoyingly long. In fact, *not* preprocessing the data makes the problem worse, because then it has to deal with more words which makes the running time go up linearly. (We tried running it on [just the Science and Technology committee](/blob/master/LDA_uncleaned_scitech.ipynb), and got results that were kind of okay?
+- like we mentioned in the part about language parsing, YAP is kinda slow so we couldn't process all our data. You can train the model on a subset of data (which [we tried by only running it on the titles](LDA_title_pipeline.ipynb)), but then it's less good. Also, if you want to use the model for inference on new documents, you have to do the same preprocessing on the new documents so that the model can make sense of them.
+- even without having to preprocess everything, the running time is still annoyingly long. In fact, *not* preprocessing the data makes the problem worse, because then it has to deal with more words which makes the running time go up linearly. (We tried running it on [just the Science and Technology committee](LDA_uncleaned_scitech.ipynb), and got results that were kind of okay?
     
 **Bottom line: This could actually work pretty well if we had more time and computing power to work with. Hopefully someone can take our code and use it to do that.**
 
